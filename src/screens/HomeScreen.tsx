@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Button } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import { useGlobalContext } from '../context/globalContext.tsx';
+import { globalStyles } from '../styles/globalStyles.ts'; 
 
 interface TravelEntry {
   image: string;
@@ -9,50 +11,43 @@ interface TravelEntry {
 }
 
 const HomeScreen = () => {
+  const { theme, isDarkMode, toggleDarkMode }  = useGlobalContext();
   const navigation = useNavigation();
   const { getItem, setItem } = useAsyncStorage('travelEntries');
   const [entries, setEntries] = useState<TravelEntry[]>([]);
 
-  // Load entries when screen is focused
   useFocusEffect(
     React.useCallback(() => {
       const loadEntries = async () => {
         try {
           const stored = await getItem();
-          if (stored) {
-            const parsed: TravelEntry[] = JSON.parse(stored);
-            setEntries(parsed);
-          } else {
-            console.log("No entries found in AsyncStorage");
-          }
+          const parsed = stored ? JSON.parse(stored) : [];
+          setEntries(parsed);
         } catch (error) {
           console.error("Error retrieving entries:", error);
         }
       };
-
       loadEntries();
-    }, [getItem]) // Re-run this effect whenever `getItem` changes
+    }, [getItem])
   );
 
-  // Delete entry from AsyncStorage
   const deleteEntry = async (index: number) => {
     try {
-      const updatedEntries = [...entries];
-      updatedEntries.splice(index, 1); // Remove the entry at the given index
-      await setItem(JSON.stringify(updatedEntries)); // Save the updated entries to AsyncStorage
-      setEntries(updatedEntries); // Update the local state to reflect the change
+      const updatedEntries = entries.filter((_, i) => i !== index);
+      await setItem(JSON.stringify(updatedEntries));
+      setEntries(updatedEntries);
     } catch (error) {
       console.error("Error deleting entry:", error);
     }
   };
 
   const renderItem = ({ item, index }: { item: TravelEntry; index: number }) => (
-    <View style={styles.entryContainer}>
+    <View style={[styles.entryContainer, { backgroundColor: theme.cardBackground }]}>
       <Image
         source={{ uri: 'data:image/jpeg;base64,' + item.image }}
         style={styles.image}
       />
-      <Text style={styles.address}>{item.address}</Text>
+      <Text style={[styles.address, { color: theme.text }]}>{item.address}</Text>
       <TouchableOpacity onPress={() => deleteEntry(index)} style={styles.deleteButton}>
         <Text style={styles.deleteText}>Delete</Text>
       </TouchableOpacity>
@@ -60,11 +55,11 @@ const HomeScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Travel Entries</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.text, { color: theme.text }]}>Travel Entries</Text>
 
       <TouchableOpacity
-        style={styles.botButtons}
+        style={[styles.botButtons, { backgroundColor: theme.toggleBackground }]}
         onPress={() => navigation.navigate('Travel Entry')}
       >
         <Text style={styles.buttonText}>Go to Travel Entry</Text>
@@ -78,8 +73,12 @@ const HomeScreen = () => {
           contentContainerStyle={styles.listContainer}
         />
       ) : (
-        <Text style={styles.text}>No travel entries yet.</Text>
+        <Text style={[styles.text, { color: theme.text }]}>No Entries Yet</Text>
       )}
+
+      <TouchableOpacity onPress={toggleDarkMode} style={[globalStyles.toggleButton, { backgroundColor: theme.toggleBackground }]}>
+        <Text style={[globalStyles.buttonText, { color: theme.text }]}>{isDarkMode ? "☾" : "✹"}</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -88,7 +87,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 40,
-    backgroundColor: '#fff',
     alignItems: 'center',
   },
   text: {
@@ -97,7 +95,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   botButtons: {
-    backgroundColor: '#0066CC',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -115,6 +112,8 @@ const styles = StyleSheet.create({
   entryContainer: {
     marginBottom: 20,
     alignItems: 'center',
+    padding: 10,
+    borderRadius: 10,
   },
   image: {
     width: 200,
@@ -124,7 +123,6 @@ const styles = StyleSheet.create({
   address: {
     marginTop: 5,
     fontSize: 14,
-    color: '#444',
     textAlign: 'center',
   },
   deleteButton: {

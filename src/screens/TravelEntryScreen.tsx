@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Button, Image, StyleSheet, Text, Platform } from "react-native";
+import { View, Button, Image, StyleSheet, Text, TouchableOpacity, Platform } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from 'expo-location';
 import * as FileSystem from 'expo-file-system';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import Constants from 'expo-constants';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import { useGlobalContext } from '../context/globalContext.tsx';
+import { globalStyles } from '../styles/globalStyles.ts'; 
 
 interface LocationCoords {
   latitude: number;
@@ -27,6 +28,7 @@ Notifications.setNotificationHandler({
 });
 
 const TravelEntryScreen = () => {
+  const { theme, isDarkMode, toggleDarkMode }  = useGlobalContext();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [location, setLocation] = useState<LocationCoords | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -202,19 +204,19 @@ const TravelEntryScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>This is a blank screen.</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.text, { color: theme.text }]}>Take a photo!.</Text>
       <Button title="Take a Picture" onPress={takePicture} />
       {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
 
       {errorMsg ? <Text style={styles.error}>{errorMsg}</Text> : null}
 
       {location && (
-        <Text style={styles.text}>
+        <Text style={[styles.text, { color: theme.text }]}>
           Latitude: {location.latitude} | Longitude: {location.longitude}
         </Text>
       )}
-      {address && <Text style={styles.text}>{address}</Text>}
+      {address && <Text style={[styles.text, { color: theme.text }]}>{address}</Text>}
 
       {imageUri && (
         <Button
@@ -223,6 +225,10 @@ const TravelEntryScreen = () => {
           disabled={isSaved} // Disable button after entry is saved
         />
       )}
+
+      <TouchableOpacity onPress={toggleDarkMode} style={[globalStyles.toggleButton, { backgroundColor: theme.toggleBackground }]}>
+        <Text style={[globalStyles.buttonText, { color: theme.text }]}>{isDarkMode ? "☾" : "✹"}</Text>
+      </TouchableOpacity>
 
     </View>
   );
@@ -235,16 +241,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    padding: 20,
   },
   text: {
     fontSize: 18,
-    color: '#333',
+    fontWeight: 'bold',
   },
   image: {
     width: 200,
     height: 200,
     marginTop: 20,
+    borderRadius: 10,
   },
   error: {
     color: 'red',
