@@ -206,16 +206,14 @@ const TravelEntryScreen = () => {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <Text style={[styles.text, { color: theme.text }]}>Take a photo!.</Text>
-      <Button title="Take a Picture" onPress={takePicture} />
-      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
+      <Button
+        title={imageUri ? "Take Another Picture" : "Take a Picture"}
+        onPress={takePicture}
+      />
+      {imageUri && <Image source={{ uri: imageUri }} style={globalStyles.image} />}
 
       {errorMsg ? <Text style={styles.error}>{errorMsg}</Text> : null}
 
-      {location && (
-        <Text style={[styles.text, { color: theme.text }]}>
-          Latitude: {location.latitude} | Longitude: {location.longitude}
-        </Text>
-      )}
       {address && <Text style={[styles.text, { color: theme.text }]}>{address}</Text>}
 
       {imageUri && (
@@ -246,15 +244,26 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginTop: 10,
+    textAlign: 'center',
   },
   image: {
     width: 200,
     height: 200,
     marginTop: 20,
     borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#ccc',
   },
   error: {
     color: 'red',
     marginTop: 10,
+    fontSize: 16,
+  },
+  button: {
+    marginTop: 15,
+    width: '80%',
+    borderRadius: 10,
+    overflow: 'hidden',
   },
 });
