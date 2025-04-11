@@ -45,7 +45,7 @@ const HomeScreen = () => {
     <View style={[styles.entryContainer, { backgroundColor: theme.cardBackground }]}>
       <Image
         source={{ uri: 'data:image/jpeg;base64,' + item.image }}
-        style={styles.image}
+        style={globalStyles.image}
       />
       <Text style={[styles.address, { color: theme.text }]}>{item.address}</Text>
       <TouchableOpacity onPress={() => deleteEntry(index)} style={styles.deleteButton}>
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 10,
     paddingBottom: 20,
+    width: '90%',
   },
   entryContainer: {
     marginBottom: 20,
@@ -115,14 +116,10 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
   },
-  image: {
-    width: 200,
-    height: 200,
-    borderRadius: 10,
-  },
   address: {
-    marginTop: 5,
-    fontSize: 14,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
     textAlign: 'center',
   },
   deleteButton: {

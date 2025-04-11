@@ -8,8 +8,9 @@ export const globalStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   image: {
-    width: 100,
-    height: 100
+    width: 200,
+    height: 200, 
+    paddingBottom: 5,
   },
   imageContainer: {
     justifyContent: 'space-around',
